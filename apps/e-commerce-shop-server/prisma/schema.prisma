@@ -1,0 +1,158 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id                 String          @id @default(cuid())
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  productId          Int?
+  name               String?
+  description        String?
+  price              Float?
+  stockQuantity      Int?
+  category           Category?       @relation(fields: [categoryId], references: [id])
+  categoryId         String?
+  reviewsItems       Reviews[]
+  wishlistItemsItems WishlistItems[]
+  cartItemsItems     CartItems[]
+  orderItems         OrderItem[]
+}
+
+model OrderItem {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  orderItemId     Int?
+  quantity        Int?
+  priceAtPurchase Float?
+  order           Order?   @relation(fields: [orderId], references: [id])
+  orderId         String?
+  product         Product? @relation(fields: [productId], references: [id])
+  productId       String?
+}
+
+model Category {
+  id               String    @id @default(cuid())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  categoryId       Int?
+  categoryName     String?
+  parentCategoryId Int?
+  products         Product[]
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  orderId         Int?
+  orderDate       DateTime?
+  shippingAddress String?
+  status          String?
+  totalAmount     Float?
+  user            User?       @relation(fields: [userId], references: [id])
+  userId          String?
+  paymentsItems   Payments[]
+  orderItems      OrderItem[]
+}
+
+model ShoppingCart {
+  id             String      @id @default(cuid())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  cartId         Int?
+  user           User?       @relation(fields: [userId], references: [id])
+  userId         String?
+  cartItemsItems CartItems[]
+}
+
+model Wishlist {
+  id                 String          @id @default(cuid())
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  wishlistId         Int?
+  user               User?           @relation(fields: [userId], references: [id])
+  userId             String?
+  wishlistItemsItems WishlistItems[]
+}
+
+model CartItems {
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  cartItemId     Int?
+  quantity       Int?
+  shoppingCart   ShoppingCart? @relation(fields: [shoppingCartId], references: [id])
+  shoppingCartId String?
+  product        Product?      @relation(fields: [productId], references: [id])
+  productId      String?
+}
+
+model WishlistItems {
+  id             String    @id @default(cuid())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  wishlistItemId Int?
+  wishlist       Wishlist? @relation(fields: [wishlistId], references: [id])
+  wishlistId     String?
+  product        Product?  @relation(fields: [productId], references: [id])
+  productId      String?
+}
+
+model Payments {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  paymentId     Int?
+  paymentDate   DateTime?
+  amount        Float?
+  paymentMethod String?
+  status        String?
+  order         Order?    @relation(fields: [orderId], references: [id])
+  orderId       String?
+}
+
+model Reviews {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reviewId  Int?
+  rating    Int?
+  comment   String?
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  firstName     String?
+  lastName      String?
+  username      String         @unique
+  email         String?        @unique
+  password      String
+  roles         Json
+  phoneNumber   String?
+  address       String?
+  userId        Int?
+  passwordHash  String?
+  orders        Order[]
+  reviewsItems  Reviews[]
+  wishlists     Wishlist[]
+  shoppingCarts ShoppingCart[]
+}
